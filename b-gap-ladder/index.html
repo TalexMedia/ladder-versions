@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Which One Was Better? · Talex Media</title>
+<link rel="icon" type="image/png" sizes="192x192" href="https://static.wixstatic.com/media/3c6878_9a68ae0b3ff84e198fdd43fac493e294~mv2_d_1500_1500_s_2.png/v1/fill/w_192,h_192,lg_1,usm_0.66_1.00_0.01/3c6878_9a68ae0b3ff84e198fdd43fac493e294~mv2_d_1500_1500_s_2.png"/>
+<link rel="shortcut icon" href="https://static.wixstatic.com/media/3c6878_9a68ae0b3ff84e198fdd43fac493e294~mv2_d_1500_1500_s_2.png/v1/fill/w_32,h_32,lg_1,usm_0.66_1.00_0.01/3c6878_9a68ae0b3ff84e198fdd43fac493e294~mv2_d_1500_1500_s_2.png" type="image/png"/>
+<link rel="apple-touch-icon" href="https://static.wixstatic.com/media/3c6878_9a68ae0b3ff84e198fdd43fac493e294~mv2_d_1500_1500_s_2.png/v1/fill/w_180,h_180,lg_1,usm_0.66_1.00_0.01/3c6878_9a68ae0b3ff84e198fdd43fac493e294~mv2_d_1500_1500_s_2.png"/>
+<meta name="description" content="Four companies each made video two ways. Pick the one that did better, guess by how much, and see the real numbers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://i.ytimg.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#app">Skip to content</a>
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="brand">
+      <a href="https://www.talexmedia.com" target="_blank" rel="noopener">
+        <img class="topbar-logo" src="https://static.wixstatic.com/media/3c6878_456d81e9cdb84e6c8bb3260ebfcc0523~mv2.png" alt="Talex Media" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'"/>
+        <span class="topbar-name" style="display:none">TALEX MEDIA</span>
+      </a>
+    </div>
+    <ol class="rail" id="rail" aria-label="The ladder, one rung for each round"></ol>
+    <div class="score" id="score" aria-live="polite"><span class="score-l">Score</span> <b id="scoreN">0</b></div>
+  </div>
+</header>
+<main id="app" class="app" tabindex="-1"></main>
+<footer class="foot" id="foot"></footer>
+
+<div class="sheet-back" id="sheetBack" hidden></div>
+<aside class="sheet" id="sheet" hidden aria-label="Sources" role="dialog" aria-modal="true">
+  <div class="sheet-head">
+    <h2>Sources</h2>
+    <button class="sheet-x" id="sheetX" type="button">Close</button>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+</aside>
+
+<script src="../shared/facts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
