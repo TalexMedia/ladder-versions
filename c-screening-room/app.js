@@ -26,13 +26,13 @@
 
   /* Screen copy per round. Names and labels are taken from FACTS; runtimes and channels stay off the pick screen. */
   var UI = [
-    { mode: 'size', q: 'Both films are P&G. Which one got more views, and by how much?',
+    { mode: 'size', q: 'P&G made both films. Which one got more views, and by how much?',
       cap: { ricos: { name: "Rico's Tacos, episode 1", meta: 'A scripted comedy series' }, tideSpot: { name: 'School Lunch', meta: 'A Tide commercial' } },
       short: { ricos: "Rico's Tacos", tideSpot: 'School Lunch' }, read: 'the Taco Drama' },
     { mode: 'pick', q: 'Allstate made both. Which one do people remember?', hint: 'Tap the one you think people remember.',
       cap: { mayhem: { name: 'Mayhem', meta: 'One character since 2010, played by Dean Winters' }, checkFirst: { name: 'Check First: Swim Meet', meta: 'A new cast in every spot' } },
       short: { mayhem: 'Mayhem', checkFirst: 'Check First' } },
-    { mode: 'size', q: "Both films are Red Bull, on Red Bull's own channel. Which one got more views, and by how much?",
+    { mode: 'size', q: "Red Bull made both films and posted them on its own channel. Which one got more views, and by how much?",
       cap: { stratos: { name: 'Stratos, the jump', meta: 'A live jump from the edge of space, streamed free on YouTube' }, confession: { name: 'Confession, the cartoon', meta: 'A Gives You Wiiings cartoon' } },
       short: { stratos: 'Stratos', confession: 'Confession' }, read: 'Red Bull Stratos' },
     { mode: 'pick', q: "YETI's name is on both films. Which one did more for YETI?", hint: E.pickInstruction,

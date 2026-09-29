@@ -96,7 +96,7 @@
         ricos: { id: ricos.videoId, label: ricos.videoLabel, title: "Rico's Tacos, episode 1", short: "Rico's Tacos episode 1",
           desc: 'Episode 1 of a scripted comedy series about a taco stand.', chan: 'On MinivelaTV', stills: [1, 3, 2] },
         tideSpot: { id: tide.videoId, label: tide.videoLabel, title: 'School Lunch', short: 'School Lunch',
-          desc: 'A Tide commercial, made as one film.', chan: "On Tide's channel", stills: [1, 2, 3] }
+          desc: 'A Tide commercial.', chan: "On Tide's channel", stills: [1, 2, 3] }
       }
     },
     {
@@ -340,7 +340,7 @@
     var vs = /(?:^|[#&])vs=(\d)(?:$|&)/.exec(location.hash);
     var saved = load();
     var L = h('section', 'landing enter');
-    L.appendChild(h('p', 'eyebrow', 'A choose your own adventure case study'));
+    L.appendChild(h('p', 'eyebrow', 'A game in four rounds'));
     var t = h('h1', 'l-title'); t.textContent = EC.title; L.appendChild(t);
     L.appendChild(h('p', 'l-sub', 'And by how much?'));
     L.appendChild(h('p', 'l-lead', EC.lead));
@@ -350,7 +350,6 @@
     var tiles = [[ricos.videoId, 1], [jump.videoId, 1], [mayhem.videoId, 3], [yf.videoId, 1], [tide.videoId, 1], [cartoon.videoId, 2], [cf.videoId, 1], [pbr.videoId, 3]];
     tiles.concat(tiles).forEach(function (tl) { var d = h('div', 'strip-tile'); var i = h('img'); i.src = still(tl[0], tl[1]); i.alt = ''; i.decoding = 'async'; d.appendChild(i); track.appendChild(d); });
     strip.appendChild(track); L.appendChild(strip);
-    L.appendChild(h('p', 'l-line', 'Four companies each made video in two different ways. In each round you make your pick, and then the real numbers appear.'));
     if (vs && +vs[1] <= 8) L.appendChild(h('p', 'vs-line', 'The colleague who shared this link scored ' + vs[1] + ' of 8.'));
     var acts = h('div', 'l-actions');
     var go = h('button', 'btn', 'Start round one'); go.type = 'button'; go.id = 'start';
