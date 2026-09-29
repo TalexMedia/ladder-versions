@@ -318,9 +318,9 @@ window.FACTS = {
      "url": "https://www.businesswire.com/news/home/20240307812926/en/Insurity-Survey-Reveals-Americas-Most-Beloved-PC-Insurance-Mascots-Amidst-Billion-Dollar-Advertising-Efforts"
     }
    ],
-   "evidenceScope": "Both studies rank Mayhem against other insurers' mascots. No published study compares Mayhem with Check First.",
+   "evidenceScope": "Both studies rank Mayhem against other insurers' mascots. These studies do not compare Mayhem with Check First.",
    "viewsAreNotEvidence": "Do not use YouTube views as evidence in this round. Commercial view counts on a brand channel mostly reflect paid promotion; the measure is the mascot research.",
-   "measure": "which one people remember",
+   "measure": "mascot research ranking",
    "why": {
     "question": "Allstate makes both. Why do people remember Mayhem?",
     "options": [
@@ -362,7 +362,7 @@ window.FACTS = {
      "seconds": 90,
      "youtubeTitle": "Felix Baumgartner's supersonic freefall from 128k' - Mission Highlights",
      "kind": "live event",
-     "label": "A live jump from the edge of space, streamed free on YouTube",
+     "label": "Highlights of a live jump from the edge of space, streamed free on YouTube",
      "channelOwner": "Red Bull",
      "published": "15 October 2012",
      "concurrentStreams": "more than 8 million concurrent livestreams at the peak, the most of any livestream on YouTube at the time",
@@ -415,7 +415,7 @@ window.FACTS = {
    "n": 4,
    "id": "ownership",
    "rung": "Own the show",
-   "lesson": "When you own the show, the audience is yours, not rented.",
+   "lesson": "A show on your company's channel gives viewers a place to find more of your work.",
    "company": "YETI",
    "winner": "yetiFilm",
    "sides": {
@@ -451,13 +451,13 @@ window.FACTS = {
      "sponsorNote": "YETI first sponsored PBR in 2013; the deal lapsed and resumed in 2017 (Front Office Sports, October 2019)"
     }
    },
-   "measure": "which one did more for YETI",
+   "measure": "views on YETI's channel",
    "why": {
-    "question": "Both are YETI. Why does the film do more for YETI in the long run?",
+    "question": "Why does it matter that the film sits on YETI's channel?",
     "options": [
      {
       "side": "yetiFilm",
-      "text": "The film sits on a channel YETI owns, so the audience the film brings in is YETI's to keep."
+      "text": "People who find the film can watch more YETI films and subscribe to YETI's channel."
      },
      {
       "side": "pbrSponsor",
@@ -480,7 +480,7 @@ window.FACTS = {
   "A series gives people a reason to come back. A single film does not.",
   "Coming back is not enough on its own, and a line that repeats is not the same as a cast that returns. People grow fond of a cast and come back to see what situation those people are in next. A new cast every time, however familiar the line, gives an audience nobody to grow fond of.",
   "People return for something they want to watch, not for something about the product.",
-  "When you own the show, the audience is yours, not rented."
+  "A show on your company's channel gives viewers a place to find more of your work."
  ],
  "closingQuestion": "Could your company make a show that comes back every week or every month, with a format and a cast your audience gets to know? Could you make that show for your audience rather than about your company, and own it rather than rent space in somebody else's show?",
  "cta": {

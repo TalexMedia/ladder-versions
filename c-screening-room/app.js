@@ -29,13 +29,13 @@
     { mode: 'size', q: 'P&G made both films. Which one got more views, and by how much?',
       cap: { ricos: { name: "Rico's Tacos, episode 1", meta: 'A scripted comedy series' }, tideSpot: { name: 'School Lunch', meta: 'A Tide commercial' } },
       short: { ricos: "Rico's Tacos", tideSpot: 'School Lunch' }, read: 'the Taco Drama' },
-    { mode: 'pick', q: 'Allstate made both. Which one do people remember?', hint: 'Tap the one you think people remember.',
+    { mode: 'pick', q: 'Which campaign ranked first for memorable ads in the mascot research?', hint: 'Tap a campaign to choose it.',
       cap: { mayhem: { name: 'Mayhem', meta: 'One character since 2010, played by Dean Winters' }, checkFirst: { name: 'Check First: Swim Meet', meta: 'A new cast in every spot' } },
       short: { mayhem: 'Mayhem', checkFirst: 'Check First' } },
     { mode: 'size', q: "Red Bull made both films and posted them on its own channel. Which one got more views, and by how much?",
-      cap: { stratos: { name: 'Stratos, the jump', meta: 'A live jump from the edge of space, streamed free on YouTube' }, confession: { name: 'Confession, the cartoon', meta: 'A Gives You Wiiings cartoon' } },
+      cap: { stratos: { name: 'Stratos, the jump', meta: 'Highlights of a live jump from the edge of space, streamed free on YouTube' }, confession: { name: 'Confession, the cartoon', meta: 'A Gives You Wiiings cartoon' } },
       short: { stratos: 'Stratos', confession: 'Confession' }, read: 'Red Bull Stratos' },
-    { mode: 'pick', q: "YETI's name is on both films. Which one did more for YETI?", hint: E.pickInstruction,
+    { mode: 'pick', q: "Which film drew viewers to YETI's own channel?", hint: E.pickInstruction,
       cap: { yetiFilm: { name: 'A Thousand Casts', meta: 'A YETI Presents documentary' }, pbrSponsor: { name: '2026 PBR YETI Bucking Bull Champion', meta: "YETI's name on a PBR bull riding award" } },
       short: { yetiFilm: 'A Thousand Casts', pbrSponsor: 'The PBR award' } }
   ];
@@ -96,11 +96,14 @@
     if (ytP) return ytP;
     ytP = new Promise(function (res, rej) {
       if (window.YT && window.YT.Player) { res(); return; }
+      var settled = false;
+      function finish(error) { if (settled) return; settled = true; clearTimeout(timer); if (error) rej(error); else res(); }
       var prev = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = function () { if (prev) { try { prev(); } catch (e) {} } res(); };
+      window.onYouTubeIframeAPIReady = function () { if (prev) { try { prev(); } catch (e) {} } finish(window.YT && window.YT.Player ? null : new Error('YouTube API unavailable')); };
       var s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; s.async = true;
-      s.onerror = function () { rej(new Error('YouTube API did not load')); };
+      s.onerror = function () { finish(new Error('YouTube API did not load')); };
       document.head.appendChild(s);
+      var timer = setTimeout(function () { finish(new Error('YouTube API timed out')); }, 5000);
     });
     ytP.catch(function () {});
     return ytP;
@@ -110,8 +113,9 @@
     P.player = new window.YT.Player(P.host, {
       host: 'https://www.youtube-nocookie.com', videoId: P.id, width: '100%', height: '100%', playerVars: PV,
       events: {
-        onReady: function (e) { try { e.target.mute(); e.target.playVideo(); } catch (x) {} },
-        onStateChange: function (e) { try { if (!e.target.isMuted()) e.target.mute(); } catch (x) {} P.state = e.data; setPauseLabel(P); }
+        onReady: function (e) { if (P.player !== e.target || !P.vid.classList.contains('show')) return; P.pauseBtn.hidden = false; try { e.target.mute(); e.target.playVideo(); } catch (x) {} },
+        onStateChange: function (e) { if (P.player !== e.target) return; try { if (!e.target.isMuted()) e.target.mute(); } catch (x) {} P.state = e.data; setPauseLabel(P); },
+        onError: function (e) { if (P.player === e.target && P.vid.classList.contains('show')) closeFilm(P.ctx, P.key); }
       }
     });
   }
@@ -120,11 +124,12 @@
     f.src = 'https://www.youtube-nocookie.com/embed/' + P.id + '?autoplay=1&mute=1&playsinline=1&rel=0&controls=0&disablekb=1&fs=0&cc_load_policy=1&cc_lang_pref=en';
     f.allow = 'autoplay; encrypted-media; picture-in-picture'; f.title = P.title;
     P.host.replaceWith(f); P.host = f; P.plain = true;
+    P.pauseBtn.hidden = true;
   }
   function setPauseLabel(P) { if (P.pauseBtn) P.pauseBtn.textContent = (P.state === 1 || P.state === 3 || P.state == null) ? 'Pause' : 'Play'; }
   function stopAllPlayers() {
     if (!S.ctx) return;
-    Object.keys(S.ctx.panes).forEach(function (k) { var P = S.ctx.panes[k]; try { if (P.player && P.player.pauseVideo) P.player.pauseVideo(); } catch (e) {} });
+    Object.keys(S.ctx.panes).forEach(function (k) { closeFilm(S.ctx, k); });
   }
 
   /* ---------- landing ---------- */
@@ -217,11 +222,11 @@
     // Film layer: sits outside the flip so a playing film never rotates or remounts.
     var vid = el('div', 'vid'); var host = el('div', 'host'); vid.appendChild(host);
     var bar = el('div', 'vidbar');
-    var pb = el('button', null, 'Pause'); pb.type = 'button';
+    var pb = el('button', null, 'Pause'); pb.type = 'button'; pb.hidden = true;
     var mt = el('span', 'mutedtag', 'Muted');
     var cb = el('button', null, 'Back to both films'); cb.type = 'button';
     bar.appendChild(pb); bar.appendChild(mt); bar.appendChild(cb); vid.appendChild(bar); p.appendChild(vid);
-    var P = { el: p, key: key, id: side.videoId, title: side.videoLabel, ov: ov, tag: tag, back: back, vid: vid, host: host, pauseBtn: pb, closeBtn: cb, player: null, state: null };
+    var P = { el: p, ctx: ctx, key: key, id: side.videoId, title: side.videoLabel, ov: ov, tag: tag, back: back, vid: vid, host: host, pauseBtn: pb, closeBtn: cb, player: null, state: null, request: 0 };
     ctx.panes[key] = P;
     pb.addEventListener('click', function (e) { e.stopPropagation(); togglePause(P); });
     cb.addEventListener('click', function (e) { e.stopPropagation(); closeFilm(ctx, key); });
@@ -237,11 +242,13 @@
     if (!ctx.locked) { ctx.watching = key; ctx.stage.classList.add('watching'); P.closeBtn.textContent = 'Back to both films'; }
     else { P.closeBtn.textContent = 'Close film'; }
     P.vid.classList.add('show');
+    P.pauseBtn.hidden = !P.player;
     applySplit(ctx);
     if (P.player && P.player.playVideo) { try { P.player.mute(); P.player.playVideo(); } catch (e) {} return; }
     if (P.plain || P.player) return;
     if (window.YT && window.YT.Player) { makePlayer(P); return; } // created right here, inside the tap
-    loadYT().then(function () { if (!P.player) makePlayer(P); }, function () { plainIframe(P); });
+    var request = ++P.request;
+    loadYT().then(function () { if (P.request === request && P.vid.classList.contains('show') && P.host.isConnected && !P.player) makePlayer(P); }, function () { if (P.request === request && P.vid.classList.contains('show') && P.host.isConnected) plainIframe(P); });
   }
   function togglePause(P) {
     if (!P.player || !P.player.getPlayerState) return;
@@ -250,8 +257,12 @@
   }
   function closeFilm(ctx, key) {
     var P = ctx.panes[key];
-    try { if (P.player && P.player.pauseVideo) P.player.pauseVideo(); } catch (e) {}
-    P.vid.classList.remove('show'); // kept mounted, only hidden
+    P.request++;
+    try { if (P.player && P.player.destroy) P.player.destroy(); } catch (e) {}
+    P.player = null; P.plain = false; P.state = null; P.pauseBtn.hidden = true;
+    Array.prototype.slice.call(P.vid.children).forEach(function (node) { if (!node.classList.contains('vidbar')) node.remove(); });
+    P.host = el('div', 'host'); P.vid.insertBefore(P.host, P.vid.firstChild);
+    P.vid.classList.remove('show');
     if (ctx.watching === key) { ctx.watching = null; ctx.stage.classList.remove('watching'); }
     applySplit(ctx);
   }
@@ -388,9 +399,9 @@
     var b = el('div', 'blk wide');
     var v = el('p', 'verdict');
     if (i === 1) {
-      v.innerHTML = callOK ? '<b>' + E.correctPick + '</b> People remember Mayhem.' : 'Your call went to Check First. Here is what the research found.';
+      v.innerHTML = callOK ? '<b>' + E.correctPick + '</b> Mayhem ranked first for memorable ads among insurance mascots.' : 'Your call went to Check First. Here is what the research found.';
     } else if (i === 3) {
-      v.innerHTML = callOK ? '<b>' + E.correctPick + '</b> The film did more for YETI.' : 'Your call went to the award. Here is where each film sits, and what each one got.';
+      v.innerHTML = callOK ? '<b>' + E.correctPick + '</b> A Thousand Casts drew viewers to YETI’s own channel.' : 'Your call went to the award. Here is where each film sits, and what each one got.';
     } else if (!right) {
       v.textContent = 'Your call went to the other film. Here is what each film got.';
     } else if (callOK) {
@@ -644,7 +655,7 @@
     res.appendChild(el('div', 'eyebrow', 'Your score'));
     var bs = el('div', 'bigscore'); var bn = el('span', null, '0'); bs.appendChild(bn); bs.appendChild(document.createTextNode(' ')); bs.appendChild(el('span', 'of', 'of')); bs.appendChild(document.createTextNode(' ' + total));
     res.appendChild(bs); countUp(bn, 0, n, 900);
-    res.appendChild(el('p', 'sub', 'One point for each call and one for each reason.'));
+    res.appendChild(el('p', 'sub', 'One point for each correct pick and one for each correct reason.'));
     var stubs = el('div', 'stubs');
     played.forEach(function (i, j) {
       var x = S.res[i], s = el('div', 'stub');

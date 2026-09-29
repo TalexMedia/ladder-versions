@@ -101,7 +101,7 @@
     },
     {
       kind: 'pick', company: r2.company, head: 'Allstate made both of these campaigns.', pre: 'memory',
-      q: 'Which Allstate campaign do more people remember?',
+      q: 'Which campaign ranked first for memorable ads in the mascot research?',
       hint: 'Tap a campaign to choose it.',
       winner: 'mayhem',
       sides: {
@@ -125,7 +125,7 @@
     },
     {
       kind: 'pick', company: r4.company, head: "YETI's name is on both of these films.", post: 'channel',
-      q: 'Which film did more for YETI?',
+      q: "Which film drew viewers to YETI's own channel?",
       hint: 'Tap a film to choose it.',
       winner: 'yetiFilm',
       sides: {
@@ -197,12 +197,14 @@
 
   /* ---------- muted YouTube player ---------- */
   var PV = { autoplay: 1, mute: 1, controls: 0, disablekb: 1, fs: 0, playsinline: 1, rel: 0, cc_load_policy: 1, cc_lang_pref: 'en' };
-  var apiState = 0, apiQueue = [];
+  var apiState = 0, apiQueue = [], apiTimer = null, currentPlayerCtx = null;
   function loadApi() {
     if (apiState) return; apiState = 1;
     var prev = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = function () { apiState = 2; if (prev) try { prev(); } catch (e) { /* ignore */ } var q = apiQueue; apiQueue = []; q.forEach(function (fn) { fn(); }); };
-    var s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; s.async = true; document.head.appendChild(s);
+    window.onYouTubeIframeAPIReady = function () { if (prev) try { prev(); } catch (e) { /* ignore */ } if (apiState !== 1) return; clearTimeout(apiTimer); apiState = 2; var q = apiQueue; apiQueue = []; q.forEach(function (fn) { fn(); }); };
+    function fail() { if (apiState !== 1) return; apiState = 3; apiQueue = []; }
+    var s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; s.async = true; s.onerror = fail; document.head.appendChild(s);
+    apiTimer = setTimeout(fail, 5000);
   }
   function embedUrl(id) {
     var q = Object.keys(PV).map(function (k) { return k + '=' + encodeURIComponent(PV[k]); }).join('&');
@@ -213,11 +215,12 @@
   }
   function playerEvents(ctx, key) {
     return {
-      onReady: function (e) { try { e.target.mute(); e.target.playVideo(); } catch (x) { /* ignore */ } },
+      onReady: function (e) { if (ctx.active !== key || !ctx.stage.isConnected) return; ctx.pauseBtn.hidden = false; try { e.target.mute(); e.target.playVideo(); } catch (x) { /* ignore */ } },
       onStateChange: function (e) {
         try { if (e.data === 1) e.target.mute(); } catch (x) { /* ignore */ }
         if (ctx.active === key) setPauseLabel(ctx, e.data === 1 || e.data === 3);
-      }
+      },
+      onError: function () { if (ctx.active === key) closeFilm(ctx); }
     };
   }
   // Called only from a tap handler: the iframe is created right here, inside the tap.
@@ -230,8 +233,8 @@
       var ifr = document.createElement('iframe');
       ifr.src = embedUrl(id); ifr.title = title; ifr.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
       host.parentNode.replaceChild(ifr, host);
-      var attach = function () { try { wirePlayer(ctx, key, new window.YT.Player(ifr, { events: playerEvents(ctx, key) })); } catch (x) { /* ignore */ } };
-      if (apiState === 2) attach(); else { apiQueue.push(attach); loadApi(); }
+      var attach = function () { if (ctx.active !== key || !ifr.isConnected) return; try { wirePlayer(ctx, key, new window.YT.Player(ifr, { events: playerEvents(ctx, key) })); } catch (x) { /* ignore */ } };
+      if (apiState === 2) attach(); else if (apiState !== 3) { apiQueue.push(attach); loadApi(); }
     }
   }
   function setPauseLabel(ctx, playing) { if (ctx.pauseBtn) ctx.pauseBtn.textContent = playing ? 'Pause' : 'Play'; ctx.isPlaying = playing; }
@@ -241,7 +244,7 @@
     var bar = h('div', 'stage-bar');
     bar.appendChild(hx('span', 'muted', ICON.mute + 'Muted'));
     var sl = h('span', 'sl'); bar.appendChild(sl);
-    var pb = h('button', 'sbtn', 'Pause'); pb.type = 'button';
+    var pb = h('button', 'sbtn', 'Pause'); pb.type = 'button'; pb.hidden = true;
     var cb = h('button', 'sbtn', 'Close'); cb.type = 'button';
     bar.appendChild(pb); bar.appendChild(cb); st.appendChild(bar);
     ctx.stage = st; ctx.stageFrame = fr; ctx.stageLabel = sl; ctx.pauseBtn = pb;
@@ -249,10 +252,7 @@
       var p = ctx.players[ctx.active]; if (!p || !p.getPlayerState) return;
       try { if (ctx.isPlaying) p.pauseVideo(); else { p.mute(); p.playVideo(); } } catch (x) { /* ignore */ }
     });
-    cb.addEventListener('click', function () {
-      var p = ctx.players[ctx.active]; try { if (p && p.pauseVideo) p.pauseVideo(); } catch (x) { /* ignore */ }
-      st.hidden = true; markWatching(ctx, null);
-    });
+    cb.addEventListener('click', function () { closeFilm(ctx); });
     return st;
   }
   function markWatching(ctx, key) {
@@ -262,9 +262,21 @@
       b.querySelector('.wt').textContent = on ? 'Playing' : 'Watch muted';
     });
   }
+  function closeFilm(ctx) {
+    var key = ctx.active;
+    if (key != null) {
+      var p = ctx.players[key];
+      try { if (p && p.destroy) p.destroy(); } catch (x) { /* ignore */ }
+      delete ctx.players[key];
+      var slot = ctx.stageFrame.querySelector('[data-slot="' + key + '"]');
+      if (slot) slot.remove();
+    }
+    ctx.active = null; ctx.pauseBtn.hidden = true; ctx.stage.hidden = true;
+    markWatching(ctx, null);
+  }
   function openFilm(ctx, key) { // tap handler
     var side = ctx.cfg.sides[key];
-    Object.keys(ctx.players).forEach(function (k) { if (k !== key) try { ctx.players[k].pauseVideo(); } catch (x) { /* ignore */ } });
+    if (ctx.active !== key) closeFilm(ctx);
     Array.prototype.forEach.call(ctx.stageFrame.children, function (s) { s.setAttribute('aria-hidden', s.getAttribute('data-slot') === key ? 'false' : 'true'); });
     var slot = ctx.stageFrame.querySelector('[data-slot="' + key + '"]');
     ctx.stage.hidden = false; ctx.active = key;
@@ -376,6 +388,7 @@
   }
 
   function reset() {
+    if (currentPlayerCtx) closeFilm(currentPlayerCtx);
     app.innerHTML = ''; posters = [];
     window.scrollTo(0, 0);
   }
@@ -387,7 +400,7 @@
     if (S.played.indexOf(i) < 0) S.played.push(i);
     S.res[i] = { call: false, why: false, done: false };
     paintRail(i);
-    var ctx = { i: i, cfg: cfg, cards: {}, players: {}, pick: null, chip: null, locked: false };
+    var ctx = { i: i, cfg: cfg, cards: {}, players: {}, pick: null, chip: null, locked: false }; currentPlayerCtx = ctx;
     var root = h('section', 'round enter'); ctx.root = root;
     root.appendChild(h('p', 'r-label', 'Round ' + (i + 1) + ' of 4 · ' + cfg.company));
     root.appendChild(h('h2', 'r-head', cfg.head));
@@ -563,7 +576,7 @@
     }
     if (ctx.pick === cfg.winner) return { ok: true, msg: EC.correctPick };
     return i === 1 ? { ok: false, msg: 'Your call went to Check First. Here is what the research shows.' }
-      : { ok: false, msg: 'Your call went to the PBR award film. Here is what each film did for YETI.' };
+      : { ok: false, msg: 'Your call went to the PBR award film. Here is where each film’s views were counted.' };
   }
 
   function summaryText(ctx) {
@@ -674,7 +687,7 @@
     plot.appendChild(ref);
     var ax2 = h('p', 'eps-count', 'Episode 1 of 22'); ch.appendChild(ax2);
     ch.appendChild(plot);
-    var axis = h('div', 'eps-axis'); axis.appendChild(h('span', null, 'Tide')); axis.appendChild(h('span', null, 'Episode 22'));
+    var axis = h('div', 'eps-axis'); axis.appendChild(h('span', null, 'Tide')); axis.appendChild(h('span', null, 'Last episode'));
     var note = h('div', 'eps-note', 'Episodes 9 and 10'); axis.appendChild(note);
     ch.appendChild(axis); sec.appendChild(ch);
     rv.appendChild(sec);

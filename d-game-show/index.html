@@ -8,15 +8,15 @@
 <link rel="icon" type="image/png" sizes="192x192" href="https://static.wixstatic.com/media/3c6878_9a68ae0b3ff84e198fdd43fac493e294~mv2_d_1500_1500_s_2.png/v1/fill/w_192,h_192,lg_1,usm_0.66_1.00_0.01/3c6878_9a68ae0b3ff84e198fdd43fac493e294~mv2_d_1500_1500_s_2.png"/>
 <link rel="shortcut icon" href="https://static.wixstatic.com/media/3c6878_9a68ae0b3ff84e198fdd43fac493e294~mv2_d_1500_1500_s_2.png/v1/fill/w_32,h_32,lg_1,usm_0.66_1.00_0.01/3c6878_9a68ae0b3ff84e198fdd43fac493e294~mv2_d_1500_1500_s_2.png" type="image/png"/>
 <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/3c6878_9a68ae0b3ff84e198fdd43fac493e294~mv2_d_1500_1500_s_2.png/v1/fill/w_180,h_180,lg_1,usm_0.66_1.00_0.01/3c6878_9a68ae0b3ff84e198fdd43fac493e294~mv2_d_1500_1500_s_2.png"/>
-<meta name="theme-color" content="#1A1816">
+<meta name="description" content="Four rounds, one company on both sides of each. Pick the film that did better and see what happened.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20dd9f26f1c3">
+<link rel="preconnect" href="https://i.ytimg.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=79e9e6cbb682">
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
-<div class="room" aria-hidden="true"><span class="beam"></span><span class="grain"></span></div>
+<a class="skip" href="#stage">Skip to the game</a>
 <header class="head" id="head">
   <div class="top">
     <div class="brand">
@@ -25,19 +25,40 @@
         <span class="topbar-name" style="display:none">TALEX MEDIA</span>
       </a>
     </div>
-    <nav class="strip" id="strip" aria-label="Rounds"></nav>
+    <div class="hud" aria-live="polite">
+      <span class="hud-round" id="hudRound"></span>
+      <span class="hud-score" id="hudScore" hidden>Score <b id="hudScoreN">0</b></span>
+    </div>
   </div>
 </header>
-<main id="main" tabindex="-1"></main>
-<footer class="foot" id="foot"></footer>
-<div class="sheet-back" id="sheetBack" hidden></div>
-<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
-  <div class="sheet-grip" aria-hidden="true"></div>
-  <div class="sheet-head"><h3 id="sheetTitle">Sources</h3><button class="sheet-close" id="sheetClose" type="button">Close</button></div>
-  <div class="sheet-body" id="sheetBody"></div>
-</section>
+
+<div class="layout">
+  <nav class="ladder" id="ladder" aria-label="The ladder">
+    <p class="ladder-title">The ladder</p>
+    <ol class="rungs" id="rungs"></ol>
+  </nav>
+  <main id="stage" class="stage" tabindex="-1"></main>
+</div>
+
+<footer class="foot">
+  <span>Talex Media · <a href="https://talexmedia.com" target="_blank" rel="noopener">talexmedia.com</a> · <a href="mailto:info@talexmedia.com">info@talexmedia.com</a></span>
+  <button type="button" class="linkbtn" data-sources>Sources</button>
+</footer>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-backdrop" data-close-sheet></div>
+  <section class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">Sources</h2>
+      <button type="button" class="sheet-x" data-close-sheet aria-label="Close sources">Close</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </section>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script src="../shared/facts.js?v=e55ac2e5f87b"></script>
-<script src="app.js?v=7feb1c66c4de"></script>
+<script src="app.js?v=2cff0b37c46c"></script>
 </body>
 </html>
